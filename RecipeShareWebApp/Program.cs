@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using RecipeShareData;
 namespace RecipeShareWebApp
 {
     public class Program

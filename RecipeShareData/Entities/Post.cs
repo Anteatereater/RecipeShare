@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RecipeShareData
+namespace RecipeShareData.Entities
 {
     public class Post
     {
@@ -20,7 +20,11 @@ namespace RecipeShareData
         public Recipe? Recipe { get; set; }
 
         [ForeignKey("User")]
-        public Guid UserID { get; set; }
+        public Guid UserId { get; set; }
         public User? User { get; set; }
+
+        public ICollection<Comment>? Comments { get; set; }
+
+        public ICollection<Image>? Images { get; set; }
     }
 }
