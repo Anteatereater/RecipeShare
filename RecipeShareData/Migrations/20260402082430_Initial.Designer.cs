@@ -11,7 +11,7 @@ using RecipeShareData;
 
 namespace RecipeShareData.Migrations
 {
-    [DbContext(typeof(RecipeShareDataContext))]
+    [DbContext(typeof(RecipeShareContext))]
     [Migration("20260402082430_Initial")]
     partial class Initial
     {

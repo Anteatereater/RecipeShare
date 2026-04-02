@@ -4,7 +4,7 @@ using RecipeShareData.Entities;
 
 namespace RecipeShareData
 {
-    public class RecipeShareDataContext : IdentityDbContext<User>
+    public class RecipeShareContext : IdentityDbContext<User>
     {
 
         public DbSet<Entities.Comment> Comments { get; set; }
@@ -14,7 +14,7 @@ namespace RecipeShareData
         public DbSet<Entities.Recipe> Recipes { get; set; }
 
 
-        public RecipeShareDataContext(DbContextOptions<RecipeShareDataContext> options) : base(options)
+        public RecipeShareContext(DbContextOptions<RecipeShareContext> options) : base(options)
         {
         }
 
