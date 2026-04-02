@@ -14,9 +14,7 @@ namespace RecipeShareData.Entities
         public string? Description { get; set; }
         public List<Component>? IngrainedList { get; set; }
 
-        [ForeignKey("Post")]
-        public Guid PostId { get; set; }
-        public List<Post>? Post { get; set; }
+        public Post? Post { get; set; }
 
         public ICollection<ComponentRecipe>? ComponentRecipes { get; set; }
 

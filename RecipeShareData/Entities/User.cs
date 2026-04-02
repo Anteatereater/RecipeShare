@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace RecipeShareData.Entities
 {
@@ -6,6 +6,6 @@ namespace RecipeShareData.Entities
     {
         public string? Description { get; set; }
 
-        public ICollection<Post>? Posts { get; set; }
+        public ICollection<Post>? Posts { get; set; } = new List<Post>();
     }
 }
