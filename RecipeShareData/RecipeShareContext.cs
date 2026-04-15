@@ -6,12 +6,12 @@ namespace RecipeShareData
 {
     public class RecipeShareContext : IdentityDbContext<User>
     {
-
-        public DbSet<Entities.Comment> Comments { get; set; }
-        public DbSet<Entities.Component> Components { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Component> Components { get; set; }
         public DbSet<Image> Images { get; set; }
-        public DbSet<Entities.Post> Posts { get; set; }
-        public DbSet<Entities.Recipe> Recipes { get; set; }
+        public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<IngrainedRecipe> IngrainedRecipe { get; set; }
 
 
         public RecipeShareContext(DbContextOptions<RecipeShareContext> options) : base(options)
@@ -20,7 +20,49 @@ namespace RecipeShareData
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
             base.OnModelCreating(builder);
+
+            builder.Entity<IngrainedRecipe>()
+                .HasKey(ir => new { ir.RecipeId, ir.ComponentId });
+
+            builder.Entity<IngrainedRecipe>()
+                .HasOne(ir => ir.Recipe)
+                .WithMany(r => r.ComponentRecipes)
+                .HasForeignKey(ir => ir.RecipeId);
+
+            builder.Entity<IngrainedRecipe>()
+                .HasOne(ir => ir.Component)
+                .WithMany(c => c.ComponentRecipes)
+                .HasForeignKey(ir => ir.ComponentId);
+
+            builder.Entity<Recipe>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Recipes)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Recipe>()
+                .Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Entity<Category>()
+                .Property(c => c.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            builder.Entity<Comment>()
+                .Property(c => c.Text)
+                .IsRequired()
+                .HasMaxLength(500);
+
         }
     }
 
