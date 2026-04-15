@@ -6,6 +6,7 @@ namespace RecipeShareData.Entities
     {
         public string? Description { get; set; }
 
-        public ICollection<Post>? Posts { get; set; } = new List<Post>();
+        public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

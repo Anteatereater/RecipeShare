@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RecipeShareData.Entities
 {
-    public class Image
+    public class Ingrained
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
-        public string Url { get; set; } = null!;
+        public string? Description { get; set; }
 
-        [ForeignKey("Recipe")]
-        public Guid RecipeId { get; set; }
-        public Recipe Recipe { get; set; } = null!;
-
+        public ICollection<IngrainedRecipe> ComponentRecipes { get; set; } = new List<IngrainedRecipe>();
     }
-}
+
+    

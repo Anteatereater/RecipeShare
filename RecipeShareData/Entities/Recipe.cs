@@ -10,13 +10,21 @@ namespace RecipeShareData.Entities
     public class Recipe
     {
         public Guid Id { get; set; }
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-        public List<Component>? IngrainedList { get; set; }
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public int PreparationTimeMinutes { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public Post? Post { get; set; }
+        public string UserId { get; set; } = null!;
+        public User User { get; set; } = null!;
 
-        public ICollection<ComponentRecipe>? ComponentRecipes { get; set; }
+        [ForeignKey("Category")]
+        public Guid CategoryId { get; set; }
+        public Category Category { get; set; } = null!;
+
+        public ICollection<IngrainedRecipe> IngrainedRecipes { get; set; } = new List<ComponentRecipe>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Image> Images { get; set; } = new List<Image>();
 
     }
 }

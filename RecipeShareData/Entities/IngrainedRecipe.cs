@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace RecipeShareData.Entities
 {
-    public class Comment
+    public class IngrainedRecipe
     {
-        public Guid Id { get; set; }
-        public string Text { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
-
         [ForeignKey("Recipe")]
         public Guid RecipeId { get; set; }
         public Recipe Recipe { get; set; } = null!;
 
-        public string UserId { get; set; } = null!;
-        public User User { get; set; } = null!;
+        [ForeignKey("Ingrained")]
+        public Guid IngrainedId { get; set; }
+        public Ingrained Ingrained { get; set; } = null!;
 
-
+        public decimal Quantity { get; set; }
+        public string Unit { get; set; } = null!;
     }
+
+
 }
