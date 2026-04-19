@@ -1,0 +1,60 @@
+﻿@using RecipeShare.Web.ViewModels.ViewModels.Recipes
+@model RecipeEditViewModel
+
+@{
+    ViewData["Title"] = "Редакция";
+}
+
+<div class="container py-5">
+    <div class="auth-card mx-auto shadow-lg p-4 rounded-4">
+        <h2 class="fw-bold mb-4 text-center">Редакция на рецепта</h2>
+
+        <form asp-action="Edit" method="post">
+            <input asp-for="Id" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Name" class="form-control" placeholder="Име" />
+                <label asp-for="Name">Име</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea asp-for="Description" class="form-control" placeholder="Описание" style="height: 120px"></textarea>
+                <label asp-for="Description">Описание</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="PreparationTimeMinutes" class="form-control" placeholder="Време" />
+                <label asp-for="PreparationTimeMinutes">Време за приготвяне (мин)</label>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Difficulty" class="form-label">Трудност</label>
+                <select asp-for="Difficulty" asp-items="Model.Difficulties" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label">Категория</label>
+                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="ImageUrl" class="form-control" placeholder="Снимка URL" />
+                <label asp-for="ImageUrl">Линк към снимка</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="ImageName" class="form-control" placeholder="Име на снимка" />
+                <label asp-for="ImageName">Име на снимка</label>
+            </div>
+
+            <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold rounded-3">
+                Запази промените
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

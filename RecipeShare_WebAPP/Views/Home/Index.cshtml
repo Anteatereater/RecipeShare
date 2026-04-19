@@ -1,0 +1,145 @@
+﻿@using RecipeShare_WebAPP.Models.Home
+@model HomeIndexViewModel
+
+@{
+    ViewData["Title"] = "Начало";
+}
+
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold mb-3">Recipe Share</h1>
+                    <h2 class="h4 text-muted mb-4">Откривай, споделяй и обсъждай любими рецепти</h2>
+                    <p class="lead mb-4">
+                        Място за хора, които обичат кулинарията. Разглеждай рецепти, качвай свои идеи
+                        и споделяй вкусове с общността.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a asp-controller="Recipes" asp-action="Index" class="btn btn-warning btn-lg px-4 rounded-3">
+                            Разгледай рецепти
+                        </a>
+                        @if (!User.Identity!.IsAuthenticated)
+                        {
+                            <a asp-controller="Users" asp-action="Register" class="btn btn-outline-dark btn-lg px-4 rounded-3">
+                                Регистрация
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mt-5 mt-lg-0">
+                <div class="hero-image-grid">
+                    <img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80" alt="Recipe" class="hero-img hero-img-1" />
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80" alt="Food" class="hero-img hero-img-2" />
+                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80" alt="Salad" class="hero-img hero-img-3" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Най-нови рецепти</h2>
+            <p class="text-muted">Последно добавените предложения от общността</p>
+        </div>
+
+        @if (Model.LatestRecipes != null && Model.LatestRecipes.Any())
+        {
+            <div class="row g-4">
+                @foreach (var recipe in Model.LatestRecipes)
+                {
+                    var imageUrl = recipe.Images != null && recipe.Images.Any()
+                    ? recipe.Images.First().Url
+                    : "https://via.placeholder.com/600x400?text=No+Image";
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="recipe-card card h-100 shadow-sm border-0 rounded-4">
+                            <img src="@imageUrl" class="card-img-top recipe-card-img" alt="@recipe.Name" />
+
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                    <span class="badge bg-warning text-dark">
+                                        @(recipe.Category?.Name ?? "Без категория")
+                                    </span>
+                                    <small class="text-muted">
+                                        @recipe.PreparationTimeMinutes мин
+                                    </small>
+                                </div>
+
+                                <h5 class="card-title fw-bold">@recipe.Name</h5>
+
+                                <p class="card-text text-muted">
+                                    @(recipe.Description.Length > 100
+                                                                ? recipe.Description.Substring(0, 100) + "..."
+                                                                : recipe.Description)
+                        </p>
+
+                                <div class="recipe-meta small text-muted">
+                                    <div><strong>Трудност:</strong> @recipe.Difficulty</div>
+                                    <div><strong>Автор:</strong> @(recipe.User?.UserName ?? "Неизвестен")</div>
+                                </div>
+                            </div>
+
+                            <div class="card-footer bg-white border-0 pb-4">
+                                <a asp-controller="Recipes" asp-action="Details" asp-route-id="@recipe.Id"
+                                   class="btn btn-outline-warning rounded-3">
+                                    Виж повече
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                        }
+            </div>
+        }
+        else
+        {
+            <div class="text-center">
+                <p class="text-muted fs-5">Все още няма добавени рецепти.</p>
+                <a asp-controller="Recipes" asp-action="Create" class="btn btn-warning rounded-3">
+                    Добави първа рецепта
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="why-us-section py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="feature-box p-4 rounded-4 shadow-sm h-100 bg-white">
+                    <div class="feature-icon mb-3">🍽️</div>
+                    <h4 class="fw-bold">Разглеждай рецепти</h4>
+                    <p class="text-muted mb-0">
+                        Открий идеи по категории, трудност и време за приготвяне.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box p-4 rounded-4 shadow-sm h-100 bg-white">
+                    <div class="feature-icon mb-3">👩‍🍳</div>
+                    <h4 class="fw-bold">Споделяй свои рецепти</h4>
+                    <p class="text-muted mb-0">
+                        Публикувай любими ястия и покажи своя стил в кухнята.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box p-4 rounded-4 shadow-sm h-100 bg-white">
+                    <div class="feature-icon mb-3">💬</div>
+                    <h4 class="fw-bold">Коментирай</h4>
+                    <p class="text-muted mb-0">
+                        Обсъждай рецепти и обменяй идеи с други потребители.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

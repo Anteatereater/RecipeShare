@@ -12,7 +12,7 @@ namespace RecipeShareWebApp
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<RecipeShareContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection1")));
 
             var app = builder.Build();
 

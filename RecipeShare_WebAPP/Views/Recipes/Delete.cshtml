@@ -1,0 +1,31 @@
+﻿@using RecipeShare.Web.ViewModels.ViewModels.Recipes
+@model RecipeDetailsViewModel
+
+@{
+    ViewData["Title"] = "Изтриване";
+}
+
+<div class="container py-5">
+    <div class="auth-card mx-auto shadow-lg p-4 rounded-4">
+        <h2 class="fw-bold text-center mb-3">Изтриване на рецепта</h2>
+        <p class="text-center text-muted mb-4">Сигурна ли си, че искаш да изтриеш тази рецепта?</p>
+
+        <div class="mb-3">
+            <strong>Име:</strong> @Model.Name
+        </div>
+
+        <div class="mb-3">
+            <strong>Категория:</strong> @Model.CategoryName
+        </div>
+
+        <div class="mb-4">
+            <strong>Трудност:</strong> @Model.Difficulty
+        </div>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger w-100 mb-2">Изтрий</button>
+            <a asp-action="Index" class="btn btn-outline-secondary w-100">Отказ</a>
+        </form>
+    </div>
+</div>

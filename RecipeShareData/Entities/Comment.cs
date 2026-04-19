@@ -9,17 +9,16 @@ namespace RecipeShareData.Entities
 {
     public class Comment
     {
-        public Guid Id { get; set; }
-        public string Text { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
 
-        [ForeignKey("Recipe")]
-        public Guid RecipeId { get; set; }
-        public Recipe Recipe { get; set; } = null!;
+		public Guid Id { get; set; }
+		public string Text { get; set; } = null!;
+		public DateTime CreatedAt { get; set; }
 
-        public string UserId { get; set; } = null!;
-        public User User { get; set; } = null!;
+		[ForeignKey("Recipe")]
+		public Guid RecipeId { get; set; }
+		public Recipe Recipe { get; set; } = null!;
 
-
+		public string UserId { get; set; } = null!;
+		public User User { get; set; } = null!;
     }
 }

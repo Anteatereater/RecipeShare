@@ -11,7 +11,6 @@ namespace RecipeShareWebApp.Controllers
         {
             this.context = context;
         }
-
         public IActionResult Create()
         {
             return View();

@@ -1,9 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RecipeShare.Web.ViewModels\RecipeShare.Web.ViewModels.csproj" />
+    <ProjectReference Include="..\RecipeShareData\RecipeShareData.csproj" />
+  </ItemGroup>
 
 </Project>
