@@ -12,15 +12,15 @@ using RecipeShareData;
 namespace RecipeShareData.Migrations
 {
     [DbContext(typeof(RecipeShareContext))]
-    [Migration("20260416062944_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260421183818_One")]
+    partial class One
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "9.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
