@@ -27,7 +27,7 @@ namespace RecipeShare_WebAPP.Controllers
             await _context.SaveChangesAsync();
 
 
-            return RedirectToAction("Index", "Recipe");
+            return RedirectToAction("Create");
         }
     }
 }

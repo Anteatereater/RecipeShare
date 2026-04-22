@@ -10,7 +10,13 @@ namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
 {
 	public class RecipeCreateViewModel
 	{
-		[Required]
+        public class ComponentInputModel
+        {
+            public Guid ComponentId { get; set; }
+          
+        }
+
+        [Required]
 		[StringLength(100)]
 		public string Name { get; set; } = null!;
 
@@ -32,5 +38,8 @@ namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
 
 		public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
 		public IEnumerable<SelectListItem> Difficulties { get; set; } = new List<SelectListItem>();
-	}
+
+        public List<ComponentInputModel> SelectedComponents { get; set; } = new();
+        public IEnumerable<SelectListItem> AvailableComponents { get; set; } = new List<SelectListItem>();
+    }
 }

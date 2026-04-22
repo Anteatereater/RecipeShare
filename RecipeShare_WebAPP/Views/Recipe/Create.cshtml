@@ -6,59 +6,206 @@
 }
 
 <div class="container py-5">
-    <div class="auth-card mx-auto shadow-lg p-4 rounded-4">
-        <h2 class="fw-bold mb-4 text-center">Добави нова рецепта</h2>
+    <div class="auth-card mx-auto shadow-lg p-4 rounded-4" style="max-width: 850px; background: #fff;">
+        <h2 class="fw-bold mb-4 text-center">Нова рецепта</h2>
 
-        <form asp-action="Create" method="post">
+        <form asp-controller="Recipe" asp-action="Create" method="post" id="recipe-form">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Name" class="form-control" placeholder="Име" />
-                <label asp-for="Name">Име</label>
-                <span asp-validation-for="Name" class="text-danger small"></span>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Name" class="form-control" placeholder="Име" />
+                        <label asp-for="Name">Заглавие</label>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-floating mb-3">
+                        <textarea asp-for="Description" class="form-control" placeholder="Описание" style="height: 120px"></textarea>
+                        <label asp-for="Description">Начин на приготвяне</label>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input asp-for="PreparationTimeMinutes" class="form-control" placeholder="Време" />
+                        <label asp-for="PreparationTimeMinutes">Време (мин)</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">Трудност</label>
+                        <select asp-for="Difficulty" asp-items="Model.Difficulties" class="form-select"></select>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">Категория</label>
+                        <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-floating mb-3">
-                <textarea asp-for="Description" class="form-control" placeholder="Описание" style="height: 120px"></textarea>
-                <label asp-for="Description">Описание</label>
-                <span asp-validation-for="Description" class="text-danger small"></span>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="ImageUrl" class="form-control" placeholder="URL" />
+                        <label asp-for="ImageUrl">Линк към снимка</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="ImageName" class="form-control" placeholder="Име" />
+                        <label asp-for="ImageName">Име на снимката</label>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="PreparationTimeMinutes" class="form-control" placeholder="Време" />
-                <label asp-for="PreparationTimeMinutes">Време за приготвяне (мин)</label>
-                <span asp-validation-for="PreparationTimeMinutes" class="text-danger small"></span>
+            <hr class="my-4 text-muted">
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0">Избери съставки</h5>
+                    <a asp-controller="Components" asp-action="Create" target="_blank" class="btn btn-sm btn-outline-secondary">
+                         Нов продукт
+                    </a>
+                </div>
+
+                <select id="component-selector" class="form-select mb-3 shadow-sm">
+                    <option value="">-- Кликни тук, за да добавиш съставка --</option>
+                    @foreach (var comp in Model.AvailableComponents)
+                    {
+                        <option value="@comp.Value">@comp.Text</option>
+                    }
+                </select>
+
+                <div id="selected-components-container" class="d-flex flex-wrap gap-2 p-3 border rounded-3 bg-light min-vh-10">
+                    <p id="placeholder-text" class="text-muted m-0 small">Избраните продукти ще се появят тук...</p>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Difficulty" class="form-label">Трудност</label>
-                <select asp-for="Difficulty" asp-items="Model.Difficulties" class="form-select"></select>
-                <span asp-validation-for="Difficulty" class="text-danger small"></span>
-            </div>
+            <div class="mt-5 text-center">
+                <button type="submit" class="btn btn-warning btn-lg w-100 py-3 fw-bold rounded-3 shadow border-0">
+                    ЗАПАЗИ 
+                </button>
 
-            <div class="mb-3">
-                <label asp-for="CategoryId" class="form-label">Категория</label>
-                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
-                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small">
+                    Отказ и връщане към началната страница
+                </a>
             </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="ImageUrl" class="form-control" placeholder="Снимка URL" />
-                <label asp-for="ImageUrl">Линк към снимка</label>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="ImageName" class="form-control" placeholder="Име на снимка" />
-                <label asp-for="ImageName">Име на снимка</label>
-            </div>
-
-            <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold rounded-3">
-                Запази
-            </button>
         </form>
     </div>
 </div>
 
 @section Scripts {
+    <script>
+        const selector = document.getElementById('component-selector');
+        const container = document.getElementById('selected-components-container');
+        const placeholder = document.getElementById('placeholder-text');
+        let selectedCount = 0;
+
+        selector.addEventListener('change', function () {
+            const componentId = this.value;
+            const componentName = this.options[this.selectedIndex].text;
+
+            if (!componentId) return;
+
+            
+            if (document.querySelector(`input[value="${componentId}"]`)) {
+                this.value = '';
+                return;
+            }
+
+           
+            if (placeholder) placeholder.style.display = 'none';
+
+            
+            const chip = document.createElement('div');
+            chip.className = 'btn btn-orange-chip animate-pop-in d-flex align-items-center gap-2';
+            chip.innerHTML = `
+                <span>${componentName}</span>
+                <i class="bi bi-x-circle-fill"></i>
+                <input type="hidden" name="SelectedComponents[${selectedCount}].ComponentId" value="${componentId}" />
+            `;
+
+           
+            chip.addEventListener('click', function () {
+                this.remove();
+                reindexComponents(); 
+                if (container.children.length === 1 && placeholder) {
+                    placeholder.style.display = 'block';
+                }
+            });
+
+            container.appendChild(chip);
+            selectedCount++;
+            this.value = ''; 
+        });
+
+       
+        function reindexComponents() {
+            const rows = container.querySelectorAll('.btn-orange-chip');
+            rows.forEach((row, i) => {
+                const input = row.querySelector('input');
+                input.name = `SelectedComponents[${i}].ComponentId`;
+            });
+            selectedCount = rows.length;
+        }
+    </script>
     <partial name="_ValidationScriptsPartial" />
 }
+
+<style>
+
+    .btn-orange-chip {
+        background-color: #fff3e0;
+        border: 1px solid #ffb74d;
+        color: #e65100;
+        border-radius: 50px;
+        padding: 5px 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+        .btn-orange-chip:hover {
+            background-color: #ffb74d;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+    .btn-warning {
+        background-color: #ff9800 !important;
+        color: white !important;
+    }
+
+        .btn-warning:hover {
+            background-color: #f57c00 !important;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+    .min-vh-10 {
+        min-height: 60px;
+    }
+
+    .animate-pop-in {
+        animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @@keyframes popIn {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>

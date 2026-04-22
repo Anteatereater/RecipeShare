@@ -70,15 +70,12 @@ namespace RecipeShare_WebAPP.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = await _recipeService.GetEditModelAsync(id, userId!);
 
-            if (model == null)
-            {
-                return Unauthorized(); 
-            }
 
-            return View(model);
+            return View("Index", "Home");
         }
 
         [HttpPost]

@@ -100,48 +100,95 @@ namespace RecipeShare.Core.Services
 				.FirstOrDefaultAsync();
 		}
 
-		public async Task<RecipeCreateViewModel> GetCreateModelAsync()
-		{
-			return new RecipeCreateViewModel
-			{
-                Categories = await GetCategorySelectListAsync(),
-                Difficulties = GetDifficultySelectList()
+        public async Task<RecipeCreateViewModel> GetCreateModelAsync()
+        {
+            var model = new RecipeCreateViewModel
+            {
+
+                Categories = await _context.Categories
+                    .OrderBy(c => c.Name)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name
+                    })
+                    .ToListAsync(),
+
+
+                AvailableComponents = await _context.Components
+                    .OrderBy(c => c.Name)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name
+                    })
+                    .ToListAsync(),
+
+
+                Difficulties = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Ниска", Text = "Ниска" },
+            new SelectListItem { Value = "Средна", Text = "Средна" },
+            new SelectListItem { Value = "Висока", Text = "Висока" }
+        }
             };
-		}
 
-		public async Task CreateAsync(RecipeCreateViewModel model, string userId)
-		{
-			Enum.TryParse<DifficultyLevel>(model.Difficulty, out var difficultyEnum);
+            return model;
+        }
 
-			var recipe = new Recipe
-			{
-				Id = Guid.NewGuid(),
-				Name = model.Name,
-				Description = model.Description,
-				PreparationTimeMinutes = model.PreparationTimeMinutes,
-				Difficulty = difficultyEnum,
-				CreatedAt = DateTime.UtcNow,
-				UserId = userId,
-				CategoryId = model.CategoryId
-			};
+        public async Task CreateAsync(RecipeCreateViewModel model, string userId)
+        {
+            
+            var recipe = new Recipe
+            {
+                Name = model.Name,
+                Description = model.Description,
+                PreparationTimeMinutes = model.PreparationTimeMinutes,
 
-			_context.Recipes.Add(recipe);
+               
+                Difficulty = Enum.Parse<DifficultyLevel>(model.Difficulty, true),
 
-			if (!string.IsNullOrWhiteSpace(model.ImageUrl))
-			{
-				_context.Images.Add(new Image
-				{
-					Id = Guid.NewGuid(),
-					Name = string.IsNullOrWhiteSpace(model.ImageName) ? model.Name : model.ImageName,
-					Url = model.ImageUrl,
-					RecipeId = recipe.Id
-				});
-			}
+                CategoryId = model.CategoryId,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow,
 
-			await _context.SaveChangesAsync();
-		}
+                
+                ComponentRecipes = new List<ComponentRecipe>(),
+                Images = new List<Image>()
+            };
 
-		public async Task<RecipeEditViewModel?> GetEditModelAsync(Guid id, string userId)
+            
+            if (model.SelectedComponents != null)
+            {
+                foreach (var item in model.SelectedComponents)
+                {
+                    recipe.ComponentRecipes.Add(new ComponentRecipe
+                    {
+                        ComponentId = item.ComponentId,
+
+                        
+                        Unit = "бр.",
+                        Quantity = 0
+                    });
+                }
+            }
+
+           
+            if (!string.IsNullOrEmpty(model.ImageUrl))
+            {
+                recipe.Images.Add(new Image
+                {
+                    Url = model.ImageUrl,
+                    Name = model.ImageName ?? model.Name
+                });
+            }
+
+          
+            _context.Recipes.Add(recipe);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<RecipeEditViewModel?> GetEditModelAsync(Guid id, string userId)
 		{
 			var recipe = await _context.Recipes
 				.Include(r => r.Images)

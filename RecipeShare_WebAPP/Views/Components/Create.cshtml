@@ -1,14 +1,18 @@
-﻿@model RecipeShareData.Entities.Component
-<div class="container py-5">
-    <div class="auth-card mx-auto shadow p-4 rounded-4" style="max-width: 500px;">
-        <h2 class="fw-bold mb-4">Нов продукт</h2>
-        <form asp-action="Create" method="post">
-            <div class="form-floating mb-3">
-                <input asp-for="Name" class="form-control" placeholder="Име" />
-                <label asp-for="Name">Име на продукта</label>
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-warning w-100">Запази</button>
-        </form>
+﻿<template id="row-template">
+    <div class="row g-2 mb-2 align-items-center component-row animate-fade-in">
+        <div class="col-md-10">
+            <select name="SelectedComponents[{index}].ComponentId" class="form-select shadow-sm" required>
+                <option value="">-- Избери продукт от списъка --</option>
+                @foreach (var comp in Model.AvailableComponents)
+                {
+                    <option value="@comp.Value">@comp.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-outline-danger btn-sm border-0 remove-row-btn">
+                ✕ Премахни
+            </button>
+        </div>
     </div>
-</div>
+</template>
