@@ -71,6 +71,41 @@
     </div>
 </div>
 
+<hr />
+<div class="mt-4">
+    <h3 class="fw-bold mb-3">Коментари</h3>
+
+    @if (User.Identity!.IsAuthenticated)
+    {
+        <form asp-controller="Comment" asp-action="Add" method="post" class="mb-4">
+            <input type="hidden" name="recipeId" value="@Model.Id" />
+            <div class="mb-2">
+                <textarea name="content" class="form-control" rows="3" placeholder="Напиши коментар..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-warning">Публикувай</button>
+        </form>
+    }
+
+    @foreach (var comment in Model.Comments)
+    {
+        <div class="card mb-3 shadow-sm border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h6 class="fw-bold text-warning">@comment.AuthorName</h6>
+                    <small class="text-muted">@comment.CreatedAt.ToString("g")</small>
+                </div>
+                <p>@comment.Text</p>
+
+                @if (comment.UserId == currentUserId || User.IsInRole("Admin"))
+                {
+                    <form asp-controller="Comment" asp-action="Delete" asp-route-id="@comment.Id" method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-danger border-0">Изтрий</button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+</div>
 <style>
     .btn-ingredient-chip {
         background-color: #f8f9fa;

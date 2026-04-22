@@ -20,6 +20,17 @@ namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
         public List<RecipeComponentViewModel> Components { get; set; } = new();
         public string UserId { get; set; } = null!;
 
+        public List<CommentViewModel> Comments { get; set; } = new List<CommentViewModel>();
+
+        public class CommentViewModel
+        {
+            public Guid Id { get; set; }
+            public string Text { get; set; } = null!;
+            public string AuthorName { get; set; } = null!;
+            public string UserId { get; set; } = null!;
+            public DateTime CreatedAt { get; set; }
+        }
+
         public class RecipeComponentViewModel
         {
             public Guid Id { get; set; }

@@ -207,32 +207,26 @@ namespace RecipeShare_WebAPP.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize] 
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
 
-           
-            var recipe = await _context.Recipes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.Id == id);
+            if (recipe == null) return NotFound();
 
-            if (recipe == null)
-            {
-                return NotFound();
-            }
-
-            
             bool isAdmin = User.IsInRole("Admin");
             bool isOwner = recipe.UserId == currentUserId;
 
+            
             if (!isAdmin && !isOwner)
             {
-               
                 return Forbid();
             }
 
            
-            await _recipeService.DeleteAsync(id, currentUserId!);
+            _context.Recipes.Remove(recipe);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }

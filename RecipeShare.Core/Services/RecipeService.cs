@@ -108,7 +108,10 @@ namespace RecipeShare.Core.Services
                 .Include(r => r.Images)
                 .Include(r => r.ComponentRecipes)
                     .ThenInclude(cr => cr.Component)
-                .FirstOrDefaultAsync(r => r.Id == id);
+                .Include(r => r.Comments) // 1. Включваме коментарите
+                    .ThenInclude(c => c.User) // Включваме автора на всеки коментар
+                .Include(r => r.Comments).ThenInclude(c => c.User)
+               .FirstOrDefaultAsync(r => r.Id == id);
 
             if (recipe == null) return null;
 
@@ -123,14 +126,26 @@ namespace RecipeShare.Core.Services
                 AuthorName = recipe.User.UserName ?? "Анонимен",
                 ImageUrls = recipe.Images.Select(i => i.Url).ToList(),
                 CreatedAt = recipe.CreatedAt,
-
                 UserId = recipe.UserId,
 
+                
                 Components = recipe.ComponentRecipes.Select(cr => new RecipeComponentViewModel
                 {
                     Id = cr.Component.Id,
                     Name = cr.Component.Name
-                }).ToList()
+                }).ToList(),
+
+
+                Comments = recipe.Comments
+    .OrderByDescending(c => c.CreatedAt)
+    .Select(c => new RecipeDetailsViewModel.CommentViewModel 
+    {
+        Id = c.Id,
+        Text = c.Text, 
+        AuthorName = c.User.UserName ?? "Анонимен",
+        UserId = c.UserId,
+        CreatedAt = c.CreatedAt
+    }).ToList()
             };
         }
 
