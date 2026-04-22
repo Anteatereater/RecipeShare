@@ -275,29 +275,28 @@ namespace RecipeShare.Core.Services
 			return true;
 		}
 
-		public async Task<RecipeDetailsViewModel?> GetDeleteModelAsync(Guid id, string userId)
-		{
-			return await _context.Recipes
-				.Include(r => r.Category)
-				.Include(r => r.Images)
-				.Include(r => r.User)
-				.Where(r => r.Id == id && r.UserId == userId)
-				.Select(r => new RecipeDetailsViewModel
-				{
-					Id = r.Id,
-					Name = r.Name,
-					Description = r.Description,
-					PreparationTimeMinutes = r.PreparationTimeMinutes,
-					Difficulty = r.Difficulty.ToString(),
-					CategoryName = r.Category.Name,
-					AuthorName = r.User.UserName ?? "Unknown",
-					CreatedAt = r.CreatedAt,
-					ImageUrls = r.Images.Select(i => i.Url).ToList()
-				})
-				.FirstOrDefaultAsync();
-		}
+        public async Task<RecipeDetailsViewModel?> GetDeleteModelAsync(Guid id, string userId)
+        {
+            var recipe = await _context.Recipes
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
-		public async Task<bool> DeleteAsync(Guid id, string userId)
+            if (recipe == null || recipe.UserId != userId)
+            {
+                return null; 
+            }
+
+            return new RecipeDetailsViewModel
+            {
+                Id = recipe.Id,
+                Name = recipe.Name,
+                AuthorName = recipe.User.UserName ?? "Анонимен"
+            };
+        }
+
+    
+
+        public async Task<bool> DeleteAsync(Guid id, string userId)
 		{
 			var recipe = await _context.Recipes
 				.Include(r => r.Images)

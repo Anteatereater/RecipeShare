@@ -87,7 +87,6 @@ namespace RecipeShare_WebAPP.Controllers
             var isUsed = await _context.ComponentRecipes.AnyAsync(cr => cr.ComponentId == id);
             if (isUsed)
             {
-               
                 return RedirectToAction(nameof(Create));
             }
 
