@@ -1,0 +1,14 @@
+﻿@model RecipeShareData.Entities.Component
+<div class="container py-5">
+    <div class="auth-card mx-auto shadow p-4 rounded-4" style="max-width: 500px;">
+        <h2 class="fw-bold mb-4">Нов продукт</h2>
+        <form asp-action="Create" method="post">
+            <div class="form-floating mb-3">
+                <input asp-for="Name" class="form-control" placeholder="Име" />
+                <label asp-for="Name">Име на продукта</label>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-warning w-100">Запази</button>
+        </form>
+    </div>
+</div>

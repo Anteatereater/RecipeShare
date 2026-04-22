@@ -1,0 +1,15 @@
+﻿@model IEnumerable<RecipeShareData.Entities.Component>
+<div class="container py-5 text-center">
+    <h2 class="fw-bold mb-4">Търсене по основна съставка</h2>
+    <div class="mx-auto" style="max-width: 400px;">
+        <form asp-action="SearchByComponent" method="post">
+            <select name="componentId" class="form-select mb-3">
+                @foreach (var item in Model)
+                {
+                    <option value="@item.Id">@item.Name</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-warning w-100">Търси рецепти</button>
+        </form>
+    </div>
+</div>

@@ -17,5 +17,6 @@ namespace RecipeShare.Core.Interfaces
 		Task<bool> UpdateAsync(RecipeEditViewModel model, string userId);
 		Task<RecipeDetailsViewModel?> GetDeleteModelAsync(Guid id, string userId);
 		Task<bool> DeleteAsync(Guid id, string userId);
-	}
+        Task<IEnumerable<RecipeListItemViewModel>> GetRecipesByComponentAsync(Guid componentId);
+    }
 }

@@ -104,9 +104,9 @@ namespace RecipeShare.Core.Services
 		{
 			return new RecipeCreateViewModel
 			{
-				Categories = await GetCategorySelectListAsync(),
-				Difficulties = GetDifficultySelectList()
-			};
+                Categories = await GetCategorySelectListAsync(),
+                Difficulties = GetDifficultySelectList()
+            };
 		}
 
 		public async Task CreateAsync(RecipeCreateViewModel model, string userId)
@@ -270,5 +270,22 @@ namespace RecipeShare.Core.Services
 				})
 				.ToList();
 		}
-	}
+
+        public async Task<IEnumerable<RecipeListItemViewModel>> GetRecipesByComponentAsync(Guid componentId)
+        {
+            return await _context.Recipes
+                .Where(r => r.ComponentRecipes.Any(cr => cr.ComponentId == componentId))
+                .Select(r => new RecipeListItemViewModel
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    CategoryName = r.Category.Name,
+                    Difficulty = r.Difficulty.ToString(),
+                    PreparationTimeMinutes = r.PreparationTimeMinutes,
+                    ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault(),
+                    AuthorName = r.User.UserName ?? "Unknown"
+                })
+                .ToListAsync();
+        }
+    }
 }
