@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecipeShare_WebAPP.Models.Users;
 using RecipeShareData.Entities;
 
-namespace RecipeShare_WebAPP.Controllers
+namespace RecipeShare.WebAPP.Controllers
 {
     public class UsersController : Controller
     {
