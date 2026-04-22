@@ -17,5 +17,13 @@ namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
 		public string AuthorName { get; set; } = null!;
 		public DateTime CreatedAt { get; set; }
 		public List<string> ImageUrls { get; set; } = new();
-	}
+        public List<RecipeComponentViewModel> Components { get; set; } = new();
+        public string UserId { get; set; } = null!;
+
+        public class RecipeComponentViewModel
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; } = null!;
+        }
+    }
 }

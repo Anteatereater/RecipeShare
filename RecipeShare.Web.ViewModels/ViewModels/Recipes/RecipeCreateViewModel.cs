@@ -8,38 +8,29 @@ using System.Threading.Tasks;
 
 namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
 {
-	public class RecipeCreateViewModel
-	{
-        public class ComponentInputModel
-        {
-            public Guid ComponentId { get; set; }
-          
-        }
+    public class RecipeCreateViewModel
+    {
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
 
-        [Required]
-		[StringLength(100)]
-		public string Name { get; set; } = null!;
+        [Range(1, 1440, ErrorMessage = "Времето трябва да бъде поне 1 минута!")]
+        public int PreparationTimeMinutes { get; set; }
+        public string Difficulty { get; set; } = null!;
+        public Guid CategoryId { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? ImageName { get; set; }
 
-		[Required]
-		[StringLength(2000)]
-		public string Description { get; set; } = null!;
+        
+        public List<SelectListItem> AvailableComponents { get; set; } = new();
+        public List<SelectListItem> Categories { get; set; } = new();
+        public List<SelectListItem> Difficulties { get; set; } = new();
 
-		[Range(1, 1000)]
-		public int PreparationTimeMinutes { get; set; }
+   
+        public List<RecipeComponentSelectionViewModel> SelectedComponents { get; set; } = new();
+    }
 
-		[Required]
-		public string Difficulty { get; set; } = null!;
-
-		[Required]
-		public Guid CategoryId { get; set; }
-
-		public string? ImageUrl { get; set; }
-		public string? ImageName { get; set; }
-
-		public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
-		public IEnumerable<SelectListItem> Difficulties { get; set; } = new List<SelectListItem>();
-
-        public List<ComponentInputModel> SelectedComponents { get; set; } = new();
-        public IEnumerable<SelectListItem> AvailableComponents { get; set; } = new List<SelectListItem>();
+    public class RecipeComponentSelectionViewModel
+    {
+        public Guid ComponentId { get; set; }
     }
 }

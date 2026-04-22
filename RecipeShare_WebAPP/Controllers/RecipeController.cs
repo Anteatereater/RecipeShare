@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RecipeShare.Core.Interfaces;
+using RecipeShare.Web.ViewModels.Component;
 using RecipeShare.Web.ViewModels.ViewModels.Recipes;
 using RecipeShareData;
+using RecipeShareData.Entities;
 using System.Security.Claims;
+using static RecipeShare.Web.ViewModels.ViewModels.Recipes.RecipeDetailsViewModel;
+
 
 namespace RecipeShare_WebAPP.Controllers
 {
@@ -29,22 +34,58 @@ namespace RecipeShare_WebAPP.Controllers
             return View(model);
         }
 
-        [AllowAnonymous]
+        
         public async Task<IActionResult> Details(Guid id)
         {
             var model = await _recipeService.GetByIdAsync(id);
+
             if (model == null)
             {
                 return NotFound();
             }
+
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ByComponent(Guid id)
+        {
+            
+            var component = await _context.Components.FindAsync(id);
+            if (component == null) return RedirectToAction(nameof(Index));
+
+           
+            var viewModel = new RecipeIndexViewModel
+            {
+                Recipes = await _context.Recipes
+                    .Where(r => r.ComponentRecipes.Any(cr => cr.ComponentId == id))
+                    .Select(r => new RecipeListItemViewModel
+                    {
+                        Id = r.Id,
+                        Name = r.Name,
+                        Description = r.Description,
+                        ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault(),
+                        CategoryName = r.Category.Name,
+                        Difficulty = r.Difficulty.ToString(),
+                        AuthorName = r.User.UserName ?? "Анонимен",                    
+                        Components = r.ComponentRecipes.Select(cr => new RecipeComponentViewModel
+                        {
+                            Id = cr.Component.Id,
+                            Name = cr.Component.Name
+                        }).ToList()
+                    })
+                    .ToListAsync()
+            };
+
+            ViewData["SearchTerm"] = component.Name;
+            return View("SearchResults", viewModel); 
+        }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             var model = await _recipeService.GetCreateModelAsync();
+
             return View(model);
         }
 
@@ -54,49 +95,101 @@ namespace RecipeShare_WebAPP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var createModel = await _recipeService.GetCreateModelAsync();
-                model.Categories = createModel.Categories;
-                model.Difficulties = createModel.Difficulties;
 
+                var freshModel = await _recipeService.GetCreateModelAsync();
+                model.AvailableComponents = freshModel.AvailableComponents;
+                model.Categories = freshModel.Categories;
+                model.Difficulties = freshModel.Difficulties;
                 return View(model);
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _recipeService.CreateAsync(model, userId!);
+
+
+            var recipe = new Recipe
+            {
+                Name = model.Name,
+                Description = model.Description,
+                PreparationTimeMinutes = model.PreparationTimeMinutes,
+                Difficulty = Enum.Parse<DifficultyLevel>(model.Difficulty, true),
+                CategoryId = model.CategoryId,
+                UserId = userId!,
+                CreatedAt = DateTime.UtcNow
+            };
+
+         
+            if (!string.IsNullOrEmpty(model.ImageUrl))
+            {
+                recipe.Images.Add(new Image { Url = model.ImageUrl, Name = model.ImageName ?? model.Name });
+            }
+
+
+            foreach (var item in model.SelectedComponents)
+            {
+                recipe.ComponentRecipes.Add(new ComponentRecipe { ComponentId = item.ComponentId });
+            }
+
+            _context.Recipes.Add(recipe);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
-
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Edit(Guid id)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = await _recipeService.GetEditModelAsync(id, userId!);
+            var recipe = await _context.Recipes.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id);
+            if (recipe == null)
+            {
+                return NotFound("Рецептата не е намерена.");
+            }
 
+            bool isAdmin = User.IsInRole("Admin");
+            bool isOwner = recipe.UserId == currentUserId;
 
-            return View("Index", "Home");
+            if (!isAdmin && !isOwner)
+            {
+                return Forbid(); 
+            }
+
+            var model = await _recipeService.GetEditModelAsync(id, currentUserId!);
+
+            return View(model);
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(RecipeEditViewModel model)
+        public async Task<IActionResult> Edit(Guid id, RecipeEditViewModel model)
         {
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
             if (!ModelState.IsValid)
             {
-                var editModel = await _recipeService.GetEditModelAsync(model.Id, User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                if (editModel != null)
-                {
-                    model.Categories = editModel.Categories;
-                    model.Difficulties = editModel.Difficulties;
-                }
+
+                var categoriesAndDifficulties = await _recipeService.GetCreateModelAsync(); 
+                model.Categories = categoriesAndDifficulties.Categories;
+                model.Difficulties = categoriesAndDifficulties.Difficulties;
+             
                 return View(model);
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _recipeService.UpdateAsync(model, userId!);
+            bool isAdmin = User.IsInRole("Admin");
 
-            if (!result) return Unauthorized();
+
+            bool isSaved = await _recipeService.EditAsync(id, model, userId!, isAdmin);
+
+            if (!isSaved)
+            {
+                return Unauthorized("Нямате права да редактирате тази рецепта.");
+            }
+
 
             return RedirectToAction(nameof(Details), new { id = model.Id });
         }
@@ -112,15 +205,34 @@ namespace RecipeShare_WebAPP.Controllers
             return View(model);
         }
 
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _recipeService.DeleteAsync(id, userId!);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!result) return Unauthorized();
+           
+            var recipe = await _context.Recipes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (recipe == null)
+            {
+                return NotFound();
+            }
+
+            
+            bool isAdmin = User.IsInRole("Admin");
+            bool isOwner = recipe.UserId == currentUserId;
+
+            if (!isAdmin && !isOwner)
+            {
+               
+                return Forbid();
+            }
+
+           
+            await _recipeService.DeleteAsync(id, currentUserId!);
 
             return RedirectToAction(nameof(Index));
         }
@@ -133,20 +245,38 @@ namespace RecipeShare_WebAPP.Controllers
             return View(components);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> SearchByComponent(Guid componentId)
         {
-            var recipes = await _recipeService.GetRecipesByComponentAsync(componentId);
+            var component = await _context.Components.FindAsync(componentId);
+            if (component == null) return RedirectToAction(nameof(Index));
 
-            var model = new RecipeIndexViewModel
+            var viewModel = new RecipeIndexViewModel
             {
-                Recipes = recipes,
-                Categories = await _context.Categories.Select(c => c.Name).ToListAsync(),
-                Difficulties = new List<string> { "Ниска", "Средна", "Висока" }
+                Recipes = await _context.Recipes
+                    .Where(r => r.ComponentRecipes.Any(cr => cr.ComponentId == componentId))
+                    .Select(r => new RecipeListItemViewModel
+                    {
+                        Id = r.Id,
+                        Name = r.Name,
+                        Description = r.Description,
+                        PreparationTimeMinutes = r.PreparationTimeMinutes,
+                        Difficulty = r.Difficulty.ToString(),
+                        CategoryName = r.Category.Name,
+                        AuthorName = r.User.UserName ?? "Анонимен",
+                        ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault(),
+                        Components = r.ComponentRecipes.Select(cr => new RecipeComponentViewModel
+                        {
+                            Id = cr.Component.Id,
+                            Name = cr.Component.Name
+                        }).ToList()
+                    })
+                    .ToListAsync()
             };
 
-            return View("Index", model); 
+            ViewData["SearchTerm"] = component.Name;
+            return View("SearchResults", viewModel);
         }
+        
     }
 }

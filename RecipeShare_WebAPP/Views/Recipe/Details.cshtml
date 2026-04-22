@@ -26,11 +26,78 @@
 
                     <div class="d-flex gap-2 flex-wrap">
                         <a asp-action="Index" class="btn btn-outline-warning rounded-3">Назад</a>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning rounded-3">Редактирай</a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger rounded-3">Изтрий</a>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редактирай</a>
+                        @using System.Security.Claims
+                        @{
+                            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                        }
+
+                        @if (User.IsInRole("Admin") || Model.UserId == currentUserId)
+                        {
+                            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Сигурни ли сте?')">
+                                    Изтрий рецептата
+                                </button>
+                            </form>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<hr class="my-5" />
+
+<div class="recipe-ingredients-section mb-5">
+    <h4 class="fw-bold mb-4">
+        <i class="bi bi-egg-fried text-warning"></i> Необходими продукти
+    </h4>
+    <p class="text-muted small mb-3">Кликни върху продукт, за да видиш други рецепти с него:</p>
+    
+    <div class="d-flex flex-wrap gap-2">
+        @foreach (var item in Model.Components)
+        {
+            <a asp-controller="Recipe" 
+               asp-action="ByComponent" 
+               asp-route-id="@item.Id" 
+               class="btn btn-ingredient-chip shadow-sm">
+                @item.Name
+            </a>
+        }
+    </div>
+</div>
+
+<div class="mb-5">
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+        <i class="bi bi-arrow-left"></i> Назад към всички рецепти
+    </a>
+</div>
+
+<style>
+
+    .btn-ingredient-chip {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        border-radius: 50px;
+        padding: 8px 22px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-ingredient-chip:hover {
+        background-color: #ff9800; 
+        color: white;
+        border-color: #f57c00;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2) !important;
+    }
+
+    .recipe-ingredients-section h4 {
+        color: #333;
+        border-left: 5px solid #ff9800;
+        padding-left: 15px;
+    }
+</style>

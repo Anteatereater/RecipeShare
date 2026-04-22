@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static RecipeShare.Web.ViewModels.ViewModels.Recipes.RecipeDetailsViewModel;
 
 namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
 {
@@ -17,5 +18,6 @@ namespace RecipeShare.Web.ViewModels.ViewModels.Recipes
 		public string AuthorName { get; set; } = null!;
 		public string? ImageUrl { get; set; }
 		public DateTime CreatedAt { get; set; }
-	}
+        public List<RecipeComponentViewModel> Components { get; set; } = new();
+    }
 }

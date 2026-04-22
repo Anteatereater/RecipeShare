@@ -1,81 +1,66 @@
 ﻿@using RecipeShare.Web.ViewModels.ViewModels.Recipes
 @model RecipeCreateViewModel
 
-@{
-    ViewData["Title"] = "Създай рецепта";
-}
-
 <div class="container py-5">
     <div class="auth-card mx-auto shadow-lg p-4 rounded-4" style="max-width: 850px; background: #fff;">
         <h2 class="fw-bold mb-4 text-center">Нова рецепта</h2>
 
-        <form asp-controller="Recipe" asp-action="Create" method="post" id="recipe-form">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
+        <form asp-action="Create" method="post" id="recipe-form">
+            
             <div class="row">
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <input asp-for="Name" class="form-control" placeholder="Име" />
+                <div class="col-md-12 mb-3">
+                    <div class="form-floating">
+                        <input asp-for="Name" class="form-control" />
                         <label asp-for="Name">Заглавие</label>
-                        <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
                 </div>
 
-                <div class="col-md-12">
-                    <div class="form-floating mb-3">
-                        <textarea asp-for="Description" class="form-control" placeholder="Описание" style="height: 120px"></textarea>
-                        <label asp-for="Description">Начин на приготвяне</label>
-                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    <div class="col-md-12 mb-3">
+                        <div class="form-floating">
+                            <textarea asp-for="Description" class="form-control" style="height: 120px" placeholder="Описание"></textarea>
+                            <label asp-for="Description">Начин на приготвяне</label>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
                     </div>
-                </div>
 
                 <div class="col-md-4">
-                    <div class="form-floating mb-3">
-                        <input asp-for="PreparationTimeMinutes" class="form-control" placeholder="Време" />
+                    <div class="form-floating mb-3"> 
+                        <input asp-for="PreparationTimeMinutes" type="number" min="1" class="form-control" placeholder="Време" />
                         <label asp-for="PreparationTimeMinutes">Време (мин)</label>
+                        <span asp-validation-for="PreparationTimeMinutes" class="text-danger small"></span>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label small text-muted mb-1">Трудност</label>
                         <select asp-for="Difficulty" asp-items="Model.Difficulties" class="form-select"></select>
                     </div>
-                </div>
 
-                <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label small text-muted mb-1">Категория</label>
                         <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
                     </div>
-                </div>
-            </div>
+                
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="ImageUrl" class="form-control" placeholder="URL" />
-                        <label asp-for="ImageUrl">Линк към снимка</label>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            <input asp-for="ImageUrl" class="form-control" placeholder="URL" />
+                            <label asp-for="ImageUrl">Линк към снимка</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            <input asp-for="ImageName" class="form-control" placeholder="Име" />
+                            <label asp-for="ImageName">Име на снимката</label>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-floating mb-3">
-                        <input asp-for="ImageName" class="form-control" placeholder="Име" />
-                        <label asp-for="ImageName">Име на снимката</label>
-                    </div>
-                </div>
-            </div>
 
-            <hr class="my-4 text-muted">
+            </div>
 
             <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold m-0">Избери съставки</h5>
-                    <a asp-controller="Components" asp-action="Create" target="_blank" class="btn btn-sm btn-outline-secondary">
-                         Нов продукт
-                    </a>
-                </div>
-
+                <h5 class="fw-bold mb-3">Избери съставки</h5>
                 <select id="component-selector" class="form-select mb-3 shadow-sm">
                     <option value="">-- Кликни тук, за да добавиш съставка --</option>
                     @foreach (var comp in Model.AvailableComponents)
@@ -89,21 +74,22 @@
                 </div>
             </div>
 
-            <div class="mt-5 text-center">
-                <button type="submit" class="btn btn-warning btn-lg w-100 py-3 fw-bold rounded-3 shadow border-0">
-                    ЗАПАЗИ 
-                </button>
-
-                <a asp-controller="Home" asp-action="Index" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small">
-                    Отказ и връщане към началната страница
-                </a>
-            </div>
+            <button type="submit" class="btn btn-warning btn-lg w-100 py-3 fw-bold rounded-3 shadow text-white">
+                ЗАПАЗИ
+            </button>
         </form>
     </div>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+        if ("@(ViewData.ModelState.IsValid)" === "False") {
+            Swal.fire({ title: 'Грешка!', text: 'Има грешно въведени данни!', icon: 'error', confirmButtonColor: '#ff9800' });
+        }
+
         const selector = document.getElementById('component-selector');
         const container = document.getElementById('selected-components-container');
         const placeholder = document.getElementById('placeholder-text');
@@ -112,55 +98,53 @@
         selector.addEventListener('change', function () {
             const componentId = this.value;
             const componentName = this.options[this.selectedIndex].text;
+            if (!componentId || document.querySelector(`input[value="${componentId}"]`)) { this.value = ''; return; }
 
-            if (!componentId) return;
-
-            
-            if (document.querySelector(`input[value="${componentId}"]`)) {
-                this.value = '';
-                return;
-            }
-
-           
             if (placeholder) placeholder.style.display = 'none';
 
-            
             const chip = document.createElement('div');
-            chip.className = 'btn btn-orange-chip animate-pop-in d-flex align-items-center gap-2';
+            chip.className = 'btn-orange-chip d-flex align-items-center gap-2';
             chip.innerHTML = `
                 <span>${componentName}</span>
                 <i class="bi bi-x-circle-fill"></i>
                 <input type="hidden" name="SelectedComponents[${selectedCount}].ComponentId" value="${componentId}" />
             `;
 
-           
-            chip.addEventListener('click', function () {
-                this.remove();
-                reindexComponents(); 
-                if (container.children.length === 1 && placeholder) {
-                    placeholder.style.display = 'block';
-                }
-            });
-
+            chip.onclick = function() { this.remove(); reindex(); };
             container.appendChild(chip);
             selectedCount++;
-            this.value = ''; 
+            this.value = '';
         });
 
-       
-        function reindexComponents() {
-            const rows = container.querySelectorAll('.btn-orange-chip');
-            rows.forEach((row, i) => {
-                const input = row.querySelector('input');
-                input.name = `SelectedComponents[${i}].ComponentId`;
-            });
-            selectedCount = rows.length;
+        function reindex() {
+            const inputs = container.querySelectorAll('input[type="hidden"]');
+            inputs.forEach((input, i) => { input.name = `SelectedComponents[${i}].ComponentId`; });
+            selectedCount = inputs.length;
+            if (selectedCount === 0) placeholder.style.display = 'block';
         }
     </script>
-    <partial name="_ValidationScriptsPartial" />
 }
 
 <style>
+    
+    .form-control, .form-select {
+        background-color: #f8f9fa !important; 
+        border: 1px solid #dee2e6; 
+        transition: all 0.2s ease-in-out;
+    }
+
+
+        .form-control:focus, .form-select:focus {
+            background-color: #ffffff !important; 
+            border-color: #ff9800; 
+            box-shadow: 0 0 0 0.25rem rgba(255, 152, 0, 0.25); 
+        }
+
+
+    textarea.form-control {
+        background-color: #f8f9fa !important;
+    }
+
 
     .btn-orange-chip {
         background-color: #fff3e0;
@@ -169,43 +153,13 @@
         border-radius: 50px;
         padding: 5px 15px;
         cursor: pointer;
-        transition: all 0.2s;
-        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
         .btn-orange-chip:hover {
             background-color: #ffb74d;
             color: #fff;
-            transform: scale(1.05);
         }
-
-    .btn-warning {
-        background-color: #ff9800 !important;
-        color: white !important;
-    }
-
-        .btn-warning:hover {
-            background-color: #f57c00 !important;
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-        }
-
-    .min-vh-10 {
-        min-height: 60px;
-    }
-
-    .animate-pop-in {
-        animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-
-    @@keyframes popIn {
-        from {
-            opacity: 0;
-            transform: scale(0.5);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
 </style>

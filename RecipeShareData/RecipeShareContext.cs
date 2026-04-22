@@ -4,6 +4,7 @@ using RecipeShareData.Entities;
 
 namespace RecipeShareData
 {
+   
     public class RecipeShareContext : IdentityDbContext<User>
     {
 		public DbSet<Category> Categories { get; set; }
@@ -58,12 +59,16 @@ namespace RecipeShareData
 				.IsRequired()
 				.HasMaxLength(50);
 
-			builder.Entity<Comment>()
-				.Property(c => c.Text)
-				.IsRequired()
-				.HasMaxLength(500);
-		
-		}
+            builder.Entity<Comment>()
+                .Property(c => c.Text)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            builder.Entity<Component>()
+				.HasIndex(c => c.Name)
+			    .IsUnique();
+
+        }
     }
 
 }

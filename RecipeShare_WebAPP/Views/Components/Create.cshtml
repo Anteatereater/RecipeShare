@@ -1,18 +1,142 @@
-﻿<template id="row-template">
-    <div class="row g-2 mb-2 align-items-center component-row animate-fade-in">
-        <div class="col-md-10">
-            <select name="SelectedComponents[{index}].ComponentId" class="form-select shadow-sm" required>
-                <option value="">-- Избери продукт от списъка --</option>
-                @foreach (var comp in Model.AvailableComponents)
-                {
-                    <option value="@comp.Value">@comp.Text</option>
-                }
-            </select>
-        </div>
-        <div class="col-md-2 text-end">
-            <button type="button" class="btn btn-outline-danger btn-sm border-0 remove-row-btn">
-                ✕ Премахни
-            </button>
+﻿@using RecipeShare.Web.ViewModels.Component
+@model ComponentCreateViewModel
+
+@{
+    ViewData["Title"] = "Управление на продукти";
+}
+
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 border-bottom pb-2">
+            <h2 class="fw-bold text-dark">
+                <i class="bi bi-basket3-fill text-warning me-2"></i> Продукти
+            </h2>
+            <p class="text-muted">Добави нов продукт или изтрий съществуващ от системата.</p>
         </div>
     </div>
-</template>
+
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h4 class="card-title fw-bold mb-4">Управление на продукт</h4>
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label small fw-bold text-uppercase text-muted">Име на продукта</label>
+                            <input asp-for="Name" class="form-control form-control-lg border-2 shadow-none border-light focus-warning"
+                                   placeholder="напр. Домати, Зехтин, Босилек..." autocomplete="off" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-3 mt-5">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold rounded-pill shadow-sm py-3 transition-hover text-white">
+                                <i class="bi bi-plus-lg me-2"></i> Добави в базата
+                            </button>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <button type="submit" asp-action="DeleteByName" class="btn btn-outline-danger btn-lg fw-bold rounded-pill py-3 transition-hover">
+                                    <i class="bi bi-trash3 me-2"></i> Изтрий от базата
+                                </button>
+                            }
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light border-0 p-4">
+                    <small class="text-muted italic">
+                        <i class="bi bi-info-circle me-1"></i> Продуктите се управляват само от администратор.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title fw-bold mb-0">Налични продукти</h4>
+                        <span class="badge bg-warning text-dark rounded-pill px-3">@Model.AvailableComponents.Count общо</span>
+                    </div>
+
+                    <div class="list-group list-group-flush overflow-auto pe-2" style="max-height: 500px;">
+                        @if (!Model.AvailableComponents.Any())
+                        {
+                            <div class="text-center py-5">
+                                <i class="bi bi-inbox text-muted display-1"></i>
+                                <p class="text-muted mt-3">Все още няма добавени продукти.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var comp in Model.AvailableComponents.OrderBy(x => x.Text))
+                            {
+                                <div class="list-group-item d-flex align-items-center justify-content-between border-0 py-3 rounded-3 mb-2 bg-hover-light">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-warning bg-opacity-10 p-2 rounded-3 me-3 text-warning">
+                                            <i class="bi bi-check2-circle"></i>
+                                        </div>
+                                        <span class="fw-medium text-dark fs-5">@comp.Text</span>
+                                    </div>
+
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@comp.Value" method="post" onsubmit="return confirm('Наистина ли искате да изтриете @comp.Text?');">
+                                            <button type="submit" class="btn btn-link text-danger p-0 border-0 shadow-none">
+                                                <i class="bi bi-trash-fill fs-5"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .focus-warning:focus {
+        border-color: #ffc107 !important;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.1) !important;
+    }
+
+    .bg-hover-light {
+        transition: background-color 0.2s ease;
+        background-color: #fdfdfd;
+        border: 1px solid #f0f0f0 !important;
+    }
+
+        .bg-hover-light:hover {
+            background-color: #fff9e6;
+            border-color: #ffeeba !important;
+        }
+
+    .transition-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #ffc107;
+        border-radius: 10px;
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

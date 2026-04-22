@@ -27,6 +27,7 @@ namespace RecipeShare_WebAPP
             {
                 options.SignIn.RequireConfirmedAccount = false;
             })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<RecipeShareContext>();
 
 			builder.Services.ConfigureApplicationCookie(options =>
@@ -43,10 +44,27 @@ namespace RecipeShare_WebAPP
 
 			using (var scope = app.Services.CreateScope())
 			{
-				var context = scope.ServiceProvider.GetRequiredService<RecipeShareContext>();
+                var context = scope.ServiceProvider.GetRequiredService<RecipeShareContext>();
+                CategorySeeder.SeedAsync(context).GetAwaiter().GetResult();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                if (!roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+                {
+                    roleManager.CreateAsync(new IdentityRole("Admin")).GetAwaiter().GetResult();
+                }
+                var adminEmail = "Admin@Admin.Admin"; 
+                var adminUser = userManager.FindByEmailAsync(adminEmail).GetAwaiter().GetResult();
 
-				CategorySeeder.SeedAsync(context).GetAwaiter().GetResult();
-			}
+                if (adminUser != null)
+                {
+                    var isInRole = userManager.IsInRoleAsync(adminUser, "Admin").GetAwaiter().GetResult();
+                    if (!isInRole)
+                    {
+                        userManager.AddToRoleAsync(adminUser, "Admin").GetAwaiter().GetResult();
+                    }
+                }
+
+            }
 
 			if (app.Environment.IsDevelopment())
             {

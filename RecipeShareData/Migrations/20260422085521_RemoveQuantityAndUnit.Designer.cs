@@ -12,8 +12,8 @@ using RecipeShareData;
 namespace RecipeShareData.Migrations
 {
     [DbContext(typeof(RecipeShareContext))]
-    [Migration("20260421183818_One")]
-    partial class One
+    [Migration("20260422085521_RemoveQuantityAndUnit")]
+    partial class RemoveQuantityAndUnit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -214,14 +214,14 @@ namespace RecipeShareData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Components");
                 });
@@ -233,13 +233,6 @@ namespace RecipeShareData.Migrations
 
                     b.Property<Guid>("ComponentId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RecipeId", "ComponentId");
 
@@ -322,9 +315,6 @@ namespace RecipeShareData.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")

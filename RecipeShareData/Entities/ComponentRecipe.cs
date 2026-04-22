@@ -17,7 +17,5 @@ namespace RecipeShareData.Entities
 		public Guid ComponentId { get; set; }
 		public Component Component { get; set; } = null!;
 
-		public decimal Quantity { get; set; }
-		public string Unit { get; set; } = null!;
 	}
 }

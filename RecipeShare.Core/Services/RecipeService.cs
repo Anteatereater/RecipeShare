@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static RecipeShare.Web.ViewModels.ViewModels.Recipes.RecipeDetailsViewModel;
 
 namespace RecipeShare.Core.Services
 {
@@ -78,7 +79,7 @@ namespace RecipeShare.Core.Services
 			};
 		}
 
-		public async Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id)
+        /*public async Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id)
 		{
 			return await _context.Recipes
 				.Include(r => r.Category)
@@ -98,7 +99,40 @@ namespace RecipeShare.Core.Services
 					ImageUrls = r.Images.Select(i => i.Url).ToList()
 				})
 				.FirstOrDefaultAsync();
-		}
+		}*/
+        public async Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id)
+        {
+            var recipe = await _context.Recipes
+                .Include(r => r.Category)
+                .Include(r => r.User)
+                .Include(r => r.Images)
+                .Include(r => r.ComponentRecipes)
+                    .ThenInclude(cr => cr.Component)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (recipe == null) return null;
+
+            return new RecipeDetailsViewModel
+            {
+                Id = recipe.Id,
+                Name = recipe.Name,
+                Description = recipe.Description,
+                PreparationTimeMinutes = recipe.PreparationTimeMinutes,
+                Difficulty = recipe.Difficulty.ToString(),
+                CategoryName = recipe.Category.Name,
+                AuthorName = recipe.User.UserName ?? "Анонимен",
+                ImageUrls = recipe.Images.Select(i => i.Url).ToList(),
+                CreatedAt = recipe.CreatedAt,
+
+                UserId = recipe.UserId,
+
+                Components = recipe.ComponentRecipes.Select(cr => new RecipeComponentViewModel
+                {
+                    Id = cr.Component.Id,
+                    Name = cr.Component.Name
+                }).ToList()
+            };
+        }
 
         public async Task<RecipeCreateViewModel> GetCreateModelAsync()
         {
@@ -167,8 +201,7 @@ namespace RecipeShare.Core.Services
                         ComponentId = item.ComponentId,
 
                         
-                        Unit = "бр.",
-                        Quantity = 0
+
                     });
                 }
             }
@@ -189,29 +222,29 @@ namespace RecipeShare.Core.Services
         }
 
         public async Task<RecipeEditViewModel?> GetEditModelAsync(Guid id, string userId)
-		{
-			var recipe = await _context.Recipes
-				.Include(r => r.Images)
-				.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+        {
+            var recipe = await _context.Recipes
+                .Include(r => r.Images)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
-			if (recipe == null) return null;
+            if (recipe == null) return null;
 
-			return new RecipeEditViewModel
-			{
-				Id = recipe.Id,
-				Name = recipe.Name,
-				Description = recipe.Description,
-				PreparationTimeMinutes = recipe.PreparationTimeMinutes,
-				Difficulty = recipe.Difficulty.ToString(),
-				CategoryId = recipe.CategoryId,
-				ImageUrl = recipe.Images.FirstOrDefault()?.Url,
-				ImageName = recipe.Images.FirstOrDefault()?.Name,
-				Categories = await GetCategorySelectListAsync(recipe.CategoryId),
-				Difficulties = GetDifficultySelectList(recipe.Difficulty.ToString())
-			};
-		}
+            return new RecipeEditViewModel
+            {
+                Id = recipe.Id,
+                Name = recipe.Name,
+                Description = recipe.Description,
+                PreparationTimeMinutes = recipe.PreparationTimeMinutes,
+                Difficulty = recipe.Difficulty.ToString(),
+                CategoryId = recipe.CategoryId,
+                ImageUrl = recipe.Images.FirstOrDefault()?.Url,
+                ImageName = recipe.Images.FirstOrDefault()?.Name,
+                Categories = await GetCategorySelectListAsync(recipe.CategoryId),
+                Difficulties = GetDifficultySelectList(recipe.Difficulty.ToString())
+            };
+        }
 
-		public async Task<bool> UpdateAsync(RecipeEditViewModel model, string userId)
+        public async Task<bool> UpdateAsync(RecipeEditViewModel model, string userId)
 		{
 			var recipe = await _context.Recipes
 				.Include(r => r.Images)
@@ -334,5 +367,52 @@ namespace RecipeShare.Core.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<bool> EditAsync(Guid id, RecipeEditViewModel model, string userId, bool isAdmin)
+        {
+            var recipe = await _context.Recipes
+                .Include(r => r.Images)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (recipe == null)
+            {
+                return false;
+            }
+
+            
+            if (recipe.UserId != userId && !isAdmin)
+            {
+                return false;
+            }
+
+            recipe.Name = model.Name;
+            recipe.Description = model.Description;
+            recipe.PreparationTimeMinutes = model.PreparationTimeMinutes;
+            recipe.CategoryId = model.CategoryId;
+
+            if (Enum.TryParse<DifficultyLevel>(model.Difficulty, out var parsedDifficulty))
+            {
+                recipe.Difficulty = parsedDifficulty;
+            }
+
+           
+            if (!string.IsNullOrEmpty(model.ImageUrl))
+            {
+              
+                var existingImage = recipe.Images.FirstOrDefault();
+                if (existingImage != null)
+                {
+                    existingImage.Url = model.ImageUrl;
+                }
+                else
+                {
+                    recipe.Images.Add(new Image { Url = model.ImageUrl, Name = model.Name });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
