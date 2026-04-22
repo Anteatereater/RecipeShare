@@ -26,15 +26,17 @@ namespace RecipeShare_WebAPP.Controllers
             _context = context;
         }
 
-
-        [AllowAnonymous] 
-        public async Task<IActionResult> Index(string? category, string? difficulty, int? maxTime)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(string? category, string? difficulty, int? maxTime, string? sortOrder)
         {
-            var model = await _recipeService.GetAllAsync(category, difficulty, maxTime);
+           
+            var model = await _recipeService.GetAllAsync(category, difficulty, maxTime, sortOrder);
             return View(model);
         }
 
-        
+
+
+
         public async Task<IActionResult> Details(Guid id)
         {
             var model = await _recipeService.GetByIdAsync(id);

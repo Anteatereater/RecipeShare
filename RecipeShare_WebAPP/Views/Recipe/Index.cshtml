@@ -15,7 +15,7 @@
     </div>
 
     <form method="get" class="row g-3 mb-5">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <select name="category" class="form-select">
                 <option value="">Всички категории</option>
                 @foreach (var category in Model.Categories)
@@ -25,9 +25,9 @@
             </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
             <select name="difficulty" class="form-select">
-                <option value="">Всички нива</option>
+                <option value="">Филтър трудност</option>
                 @foreach (var difficulty in Model.Difficulties)
                 {
                     <option value="@difficulty" selected="@(Model.Difficulty == difficulty)">@difficulty</option>
@@ -36,13 +36,28 @@
         </div>
 
         <div class="col-md-3">
+            <select name="sortOrder" class="form-select">
+                <option value="">Сортирай по...</option>
+                <option value="time_asc" selected='@(Context.Request.Query["sortOrder"] == "time_asc")'>Най-бързи</option>
+                <option value="time_desc" selected='@(Context.Request.Query["sortOrder"] == "time_desc")'>Най-бавни</option>
+                <option value="diff_asc" selected='@(Context.Request.Query["sortOrder"] == "diff_asc")'>Лесни първо</option>
+                <option value="diff_desc" selected='@(Context.Request.Query["sortOrder"] == "diff_desc")'>Трудни първо</option>
+            </select>
+        </div>
+
+        <div class="col-md-3 d-grid">
+            <button type="submit" class="btn btn-warning">Приложи филтрите</button>
+        </div>
+    </form>
+
+        <div class="col-md-3">
             <input name="maxTime" value="@Model.MaxTime" class="form-control" placeholder="Макс. време (мин)" />
         </div>
 
         <div class="col-md-1 d-grid">
             <button type="submit" class="btn btn-outline-warning">Търси</button>
         </div>
-    </form>
+    
 
     @if (Model.Recipes.Any())
     {

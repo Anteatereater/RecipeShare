@@ -22,84 +22,79 @@ namespace RecipeShare.Core.Services
 			_context = context;
 		}
 
-		public async Task<RecipeIndexViewModel> GetAllAsync(string? category, string? difficulty, int? maxTime)
-		{
-			var query = _context.Recipes
-				.Include(r => r.Category)
-				.Include(r => r.Images)
-				.Include(r => r.User)
-				.AsQueryable();
+        public async Task<RecipeIndexViewModel> GetAllAsync(string? category, string? difficulty, int? maxTime, string? sortOrder = null)
+        {
+           
+            var query = _context.Recipes
+                .Include(r => r.Category)
+                .Include(r => r.Images)
+                .Include(r => r.User)
+                .AsQueryable();
 
-			if (!string.IsNullOrWhiteSpace(category))
-			{
-				query = query.Where(r => r.Category.Name == category);
-			}
+ 
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(r => r.Category.Name == category);
+            }
 
-			if (!string.IsNullOrWhiteSpace(difficulty))
-			{
-				query = query.Where(r => r.Difficulty.ToString() == difficulty);
-			}
 
-			if (maxTime.HasValue)
-			{
-				query = query.Where(r => r.PreparationTimeMinutes <= maxTime.Value);
-			}
+            if (!string.IsNullOrWhiteSpace(difficulty))
+            {
+                query = query.Where(r => r.Difficulty.ToString() == difficulty);
+            }
 
-			var recipes = await query
-				.OrderByDescending(r => r.CreatedAt)
-				.Select(r => new RecipeListItemViewModel
-				{
-					Id = r.Id,
-					Name = r.Name,
-					Description = r.Description,
-					PreparationTimeMinutes = r.PreparationTimeMinutes,
-					Difficulty = r.Difficulty.ToString(),
-					CategoryName = r.Category.Name,
-					AuthorName = r.User.UserName ?? "Unknown",
-					ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault(),
-					CreatedAt = r.CreatedAt
-				})
-				.ToListAsync();
 
-			var categories = await _context.Categories
-				.OrderBy(c => c.Name)
-				.Select(c => c.Name)
-				.ToListAsync();
+            if (maxTime.HasValue)
+            {
+                query = query.Where(r => r.PreparationTimeMinutes <= maxTime.Value);
+            }
 
-			var difficulties = Enum.GetNames(typeof(DifficultyLevel));
+            query = sortOrder switch
+            {
+                "time_asc" => query.OrderBy(r => r.PreparationTimeMinutes),
+                "time_desc" => query.OrderByDescending(r => r.PreparationTimeMinutes),
+                "diff_asc" => query.OrderBy(r => r.Difficulty), 
+                "diff_desc" => query.OrderByDescending(r => r.Difficulty), 
+                _ => query.OrderByDescending(r => r.CreatedAt) 
+            };
 
-			return new RecipeIndexViewModel
-			{
-				Recipes = recipes,
-				Category = category,
-				Difficulty = difficulty,
-				MaxTime = maxTime,
-				Categories = categories,
-				Difficulties = difficulties
-			};
-		}
+           
+            var recipes = await query
+                .Select(r => new RecipeListItemViewModel
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Description = r.Description,
+                    PreparationTimeMinutes = r.PreparationTimeMinutes,
+                    Difficulty = r.Difficulty.ToString(),
+                    CategoryName = r.Category.Name,
+                    AuthorName = r.User.UserName ?? "Unknown",
+                    ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault(),
+                    CreatedAt = r.CreatedAt
+                })
+                .ToListAsync();
 
-        /*public async Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id)
-		{
-			return await _context.Recipes
-				.Include(r => r.Category)
-				.Include(r => r.Images)
-				.Include(r => r.User)
-				.Where(r => r.Id == id)
-				.Select(r => new RecipeDetailsViewModel
-				{
-					Id = r.Id,
-					Name = r.Name,
-					Description = r.Description,
-					PreparationTimeMinutes = r.PreparationTimeMinutes,
-					Difficulty = r.Difficulty.ToString(),
-					CategoryName = r.Category.Name,
-					AuthorName = r.User.UserName ?? "Unknown",
-					CreatedAt = r.CreatedAt,
-					ImageUrls = r.Images.Select(i => i.Url).ToList()
-				})
-				.FirstOrDefaultAsync();
-		}*/
+            
+            var categories = await _context.Categories
+                .OrderBy(c => c.Name)
+                .Select(c => c.Name)
+                .ToListAsync();
+
+            var difficulties = Enum.GetNames(typeof(DifficultyLevel)).ToList();
+
+           
+            return new RecipeIndexViewModel
+            {
+                Recipes = recipes,
+                Category = category,
+                Difficulty = difficulty,
+                MaxTime = maxTime,
+                Categories = categories,
+                Difficulties = difficulties
+            };
+        }
+
+       
         public async Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id)
         {
             var recipe = await _context.Recipes
@@ -108,8 +103,8 @@ namespace RecipeShare.Core.Services
                 .Include(r => r.Images)
                 .Include(r => r.ComponentRecipes)
                     .ThenInclude(cr => cr.Component)
-                .Include(r => r.Comments) // 1. Включваме коментарите
-                    .ThenInclude(c => c.User) // Включваме автора на всеки коментар
+                .Include(r => r.Comments) 
+                    .ThenInclude(c => c.User)
                 .Include(r => r.Comments).ThenInclude(c => c.User)
                .FirstOrDefaultAsync(r => r.Id == id);
 
@@ -137,15 +132,15 @@ namespace RecipeShare.Core.Services
 
 
                 Comments = recipe.Comments
-    .OrderByDescending(c => c.CreatedAt)
-    .Select(c => new RecipeDetailsViewModel.CommentViewModel 
-    {
-        Id = c.Id,
-        Text = c.Text, 
-        AuthorName = c.User.UserName ?? "Анонимен",
-        UserId = c.UserId,
-        CreatedAt = c.CreatedAt
-    }).ToList()
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new RecipeDetailsViewModel.CommentViewModel 
+                    {
+                     Id = c.Id,
+                     Text = c.Text, 
+                     AuthorName = c.User.UserName ?? "Анонимен",
+                     UserId = c.UserId,
+                     CreatedAt = c.CreatedAt
+                    }).ToList()
             };
         }
 
