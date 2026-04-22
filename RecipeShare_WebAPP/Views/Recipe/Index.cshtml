@@ -50,18 +50,18 @@
             @foreach (var recipe in Model.Recipes)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="recipe-card card h-100 shadow-sm border-0 rounded-4">
+                    <div class="recipe-card card h-100 shadow-sm border-0 rounded-4" style="background-color: #ffcc99;">
                         <img src="@(recipe.ImageUrl ?? "https://via.placeholder.com/600x400?text=No+Image")"
-                             class="card-img-top recipe-card-img" alt="@recipe.Name" />
+                             class="card-img-top recipe-card-img" alt="@recipe.Name" style="background-color: #ffcc99;" />
 
-                        <div class="card-body">
+                        <div class="card-body" style="background-color: #ffcc99;">
                             <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                                 <span class="badge bg-warning text-dark">@recipe.CategoryName</span>
                                 <small class="text-muted">@recipe.PreparationTimeMinutes мин</small>
                             </div>
 
-                            <h5 class="card-title fw-bold">@recipe.Name</h5>
-                            <p class="card-text text-muted">
+                            <h5 class="card-title fw-bold" style="background-color: #ffcc99;">@recipe.Name</h5>
+                            <p class="card-text text-muted" style="background-color: #ffcc99;">
                                 @(recipe.Description.Length > 100 ? recipe.Description.Substring(0, 100) + "..." : recipe.Description)
                             </p>
 
@@ -71,7 +71,7 @@
                             </div>
                         </div>
 
-                        <div class="card-footer bg-white border-0 pb-4">
+                        <div class="card-footer bg-white border-0 pb-4" style="background-color: #ffcc99;">
                             <a asp-action="Details" asp-route-id="@recipe.Id" class="btn btn-outline-warning rounded-3">
                                 Виж повече
                             </a>
