@@ -9,7 +9,7 @@ namespace RecipeShare.Core.Interfaces
 {
 	public interface IRecipeService
 	{
-        Task<RecipeIndexViewModel> GetAllAsync(string? category, string? difficulty, int? maxTime, string? sortTime = null);
+        Task<RecipeIndexViewModel> GetAllAsync(string? category, string? difficulty, int? maxTime, string? sortOrder = null);
         Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id);
 		Task<RecipeCreateViewModel> GetCreateModelAsync();
 		Task CreateAsync(RecipeCreateViewModel model, string userId);

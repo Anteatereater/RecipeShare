@@ -24,27 +24,23 @@ namespace RecipeShare.Core.Services
 
         public async Task<RecipeIndexViewModel> GetAllAsync(string? category, string? difficulty, int? maxTime, string? sortOrder = null)
         {
-           
             var query = _context.Recipes
                 .Include(r => r.Category)
                 .Include(r => r.Images)
                 .Include(r => r.User)
                 .AsQueryable();
 
- 
             if (!string.IsNullOrWhiteSpace(category))
             {
                 query = query.Where(r => r.Category.Name == category);
             }
-
 
             if (!string.IsNullOrWhiteSpace(difficulty))
             {
                 query = query.Where(r => r.Difficulty.ToString() == difficulty);
             }
 
-
-            if (maxTime.HasValue)
+            if (maxTime.HasValue && maxTime.Value > 0)
             {
                 query = query.Where(r => r.PreparationTimeMinutes <= maxTime.Value);
             }
@@ -53,12 +49,12 @@ namespace RecipeShare.Core.Services
             {
                 "time_asc" => query.OrderBy(r => r.PreparationTimeMinutes),
                 "time_desc" => query.OrderByDescending(r => r.PreparationTimeMinutes),
-                "diff_asc" => query.OrderBy(r => r.Difficulty), 
-                "diff_desc" => query.OrderByDescending(r => r.Difficulty), 
-                _ => query.OrderByDescending(r => r.CreatedAt) 
+                "diff_asc" => query.OrderBy(r => r.Difficulty),
+                "diff_desc" => query.OrderByDescending(r => r.Difficulty),
+                "name" => query.OrderBy(r => r.Name),
+                _ => query.OrderByDescending(r => r.CreatedAt)
             };
 
-           
             var recipes = await query
                 .Select(r => new RecipeListItemViewModel
                 {
@@ -68,33 +64,17 @@ namespace RecipeShare.Core.Services
                     PreparationTimeMinutes = r.PreparationTimeMinutes,
                     Difficulty = r.Difficulty.ToString(),
                     CategoryName = r.Category.Name,
-                    AuthorName = r.User.UserName ?? "Unknown",
-                    ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault(),
-                    CreatedAt = r.CreatedAt
+                    AuthorName = r.User.UserName ?? "Анонимен",
+                    ImageUrl = r.Images.Select(i => i.Url).FirstOrDefault()
                 })
                 .ToListAsync();
 
-            
-            var categories = await _context.Categories
-                .OrderBy(c => c.Name)
-                .Select(c => c.Name)
-                .ToListAsync();
-
-            var difficulties = Enum.GetNames(typeof(DifficultyLevel)).ToList();
-
-           
             return new RecipeIndexViewModel
             {
-                Recipes = recipes,
-                Category = category,
-                Difficulty = difficulty,
-                MaxTime = maxTime,
-                Categories = categories,
-                Difficulties = difficulties
+                Recipes = recipes
             };
         }
 
-       
         public async Task<RecipeDetailsViewModel?> GetByIdAsync(Guid id)
         {
             var recipe = await _context.Recipes

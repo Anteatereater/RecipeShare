@@ -14,8 +14,9 @@
         <a asp-action="Create" class="btn btn-warning rounded-3">Добави рецепта</a>
     </div>
 
-    <form method="get" class="row g-3 mb-5">
+    <form method="get" class="row g-3 mb-5 align-items-end">
         <div class="col-md-3">
+            <label class="form-label">Категория</label>
             <select name="category" class="form-select">
                 <option value="">Всички категории</option>
                 @foreach (var category in Model.Categories)
@@ -25,9 +26,10 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <label class="form-label">Трудност</label>
             <select name="difficulty" class="form-select">
-                <option value="">Филтър трудност</option>
+                <option value="">Всички</option>
                 @foreach (var difficulty in Model.Difficulties)
                 {
                     <option value="@difficulty" selected="@(Model.Difficulty == difficulty)">@difficulty</option>
@@ -35,9 +37,15 @@
             </select>
         </div>
 
+        <div class="col-md-2">
+            <label class="form-label">Време до (max)</label>
+            <input type="number" name="maxTime" value="@Model.MaxTime" class="form-control" placeholder="напр. 45" />
+        </div>
+
         <div class="col-md-3">
+            <label class="form-label">Сортирай по</label>
             <select name="sortOrder" class="form-select">
-                <option value="">Сортирай по...</option>
+                <option value="">Най-нови</option>
                 <option value="time_asc" selected='@(Context.Request.Query["sortOrder"] == "time_asc")'>Най-бързи</option>
                 <option value="time_desc" selected='@(Context.Request.Query["sortOrder"] == "time_desc")'>Най-бавни</option>
                 <option value="diff_asc" selected='@(Context.Request.Query["sortOrder"] == "diff_asc")'>Лесни първо</option>
@@ -45,19 +53,10 @@
             </select>
         </div>
 
-        <div class="col-md-3 d-grid">
-            <button type="submit" class="btn btn-warning">Приложи филтрите</button>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-warning">Търси</button>
         </div>
     </form>
-
-        <div class="col-md-3">
-            <input name="maxTime" value="@Model.MaxTime" class="form-control" placeholder="Макс. време (мин)" />
-        </div>
-
-        <div class="col-md-1 d-grid">
-            <button type="submit" class="btn btn-outline-warning">Търси</button>
-        </div>
-    
 
     @if (Model.Recipes.Any())
     {

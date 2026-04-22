@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿/*using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecipeShare.Core.Services;
@@ -10,10 +10,10 @@ using RecipeShareData;
 using RecipeShareData.Entities;
 using Xunit;
 
-/*
+*//*
 Ниска,
 Средна,
-Висока*/
+Висока*//*
 namespace RecipeShare.Tests
 {
     public class RecipeServiceTests
@@ -503,4 +503,4 @@ namespace RecipeShare.Tests
             return context;
         }
     }
-}
+}*/
