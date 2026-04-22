@@ -5,7 +5,7 @@ using RecipeShare_WebAPP.Models.Home;
 using RecipeShareData;
 using System.Diagnostics;
 
-namespace RecipeShare.WebAPP.Controllers
+namespace RecipeShare_WebAPP.Controllers
 {
     public class HomeController : Controller
     {

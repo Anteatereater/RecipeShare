@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecipeShareData;
 
-namespace RecipeShare.WebApp.Controllers
+namespace RecipeShare_WebAPP.Controllers
 {
     public class RecipeShareController : Controller
     {
