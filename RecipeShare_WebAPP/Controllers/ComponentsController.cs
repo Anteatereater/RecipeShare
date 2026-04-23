@@ -95,5 +95,39 @@ namespace RecipeShare_WebAPP.Controllers
 
             return RedirectToAction(nameof(Create));
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteByName(ComponentCreateViewModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Name))
+            {
+                TempData["Error"] = "Моля, въведете име на съставка!";
+                return RedirectToAction(nameof(Create));
+            }
+
+            var component = await _context.Components
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == model.Name.ToLower());
+
+            if (component == null)
+            {
+                TempData["Error"] = "Съставка с такова име не съществува!";
+                return RedirectToAction(nameof(Create));
+            }
+
+            var isUsed = await _context.ComponentRecipes.AnyAsync(cr => cr.ComponentId == component.Id);
+            if (isUsed)
+            {
+                TempData["Error"] = "Не може да изтриете тази съставка, защото участва в рецепти!";
+                return RedirectToAction(nameof(Create));
+            }
+
+            _context.Components.Remove(component);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Съставката '{component.Name}' беше успешно изтрита!";
+
+            return RedirectToAction(nameof(Create));
+        }
     }
 }

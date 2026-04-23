@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using RecipeShare.Web.ViewModels.Component;
 using RecipeShareData;
 using RecipeShareData.Entities;
 using System.Security.Claims;
@@ -56,5 +59,7 @@ namespace RecipeShare_WebAPP.Controllers
 
             return RedirectToAction("Details", "Recipe", new { id = comment.RecipeId });
         }
+
+        
     }
 }
